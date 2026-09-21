@@ -112,6 +112,11 @@ input[type=checkbox]{width:18px;height:18px;flex:none;accent-color:var(--focus);
   .chip:active,.tile:active,.stars button:active,.stars button:hover,button:active{transform:none}
   *{scroll-behavior:auto!important}
 }
+/* mode-specific copy: `hide-hosted` shows everywhere except the hosted app,
+   `only-hosted` shows nowhere else */
+.only-hosted{display:none}
+html[data-mode=hosted] .only-hosted{display:block}
+html[data-mode=hosted] .hide-hosted{display:none}
 #shell{display:flex;min-height:100vh}
 .sidebar{width:224px;flex:none;background:var(--panel);border-right:1px solid var(--line);
   padding:28px 18px;display:flex;flex-direction:column;gap:28px;position:sticky;top:0;height:100vh;overflow-y:auto}
@@ -605,7 +610,7 @@ th.r,td.r{text-align:right}
         </div>
       </div>
 
-      <div class="card" style="margin-bottom:16px">
+      <div class="card hide-hosted" style="margin-bottom:16px">
         <h2 style="font-size:16px;margin-bottom:6px">Inbox</h2>
         <p class="dim" style="font-size:13px;margin:0 0 13px">
           Drop a JSON file of assignments into <span class="mono">inbox.json</span> next to the app and
@@ -620,10 +625,13 @@ th.r,td.r{text-align:right}
 
       <div class="card">
         <h2 style="font-size:16px;margin-bottom:6px">Permanent memory</h2>
-        <p class="dim" style="font-size:13px;margin:0 0 13px">
+        <p class="dim hide-hosted" style="font-size:13px;margin:0 0 13px">
           Everything lives in <span class="mono">focus-data.json</span> next to this app, written by the
           local server every time something changes — that's the real save, not the browser. Export
           now and then anyway for a dated backup.</p>
+        <p class="dim only-hosted" style="font-size:13px;margin:0 0 13px">
+          Everything is stored in this browser on this device. Turn on cloud sync to keep your other
+          devices in step, and export now and then for a dated backup.</p>
         <div id="health" style="margin:0 0 14px"></div>
         <p class="faint mono" id="exp-info" style="font-size:12px;margin:0 0 13px"></p>
         <div class="row wrapf" style="gap:9px">
@@ -821,10 +829,22 @@ function storageProbe(){
 }
 const HEALTH=storageProbe();
 const originLabel=()=>HEALTH.file?'file:// (local disk)':(location.origin||location.host||'unknown');
-/* SERVER is true whenever this page is being served over http:// — i.e. launched
-   via Start Focus.bat — which means server.py/server.js is alive and will
-   actually write focus-data.json to disk on every save. */
-const SERVER=!HEALTH.file;
+/* Where is this page running?
+     'server' — http://localhost or 127.0.0.1, i.e. launched via Start Focus.bat.
+                server.py/server.js is alive and writes focus-data.json on every save.
+     'hosted' — any other origin (GitHub Pages, or the installed home-screen app).
+                There is no write endpoint: data lives in this browser and moves
+                between devices through cloud sync (see sync.js).
+     'file'   — opened straight off the disk; nothing can be saved reliably.
+   `?mode=hosted` on a local URL forces hosted mode, for testing the installed-app path. */
+const MODE=(()=>{
+  if(HEALTH.file) return 'file';
+  const local=/^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname);
+  if(local&&/[?&]mode=hosted\b/.test(location.search)) return 'hosted';
+  return local?'server':'hosted';
+})();
+const SERVER=MODE==='server';
+document.documentElement.dataset.mode=MODE;
 let db=boot();
 if(!db.onboarded && (db.classes.length||db.assignments.length||db.sessions.length)) db.onboarded=true;
 
@@ -5211,16 +5231,16 @@ function paintHealth(){
   const el=$('health'); if(!el) return;
   el.innerHTML=`<table style="font-size:12.5px">
     <tr><td class="dim">Served from</td><td class="r mono">${esc(originLabel())}</td></tr>
-    <tr><td class="dim">Saved to disk</td><td class="r mono" style="color:${SERVER?'var(--focus)':'var(--bad)'}">${SERVER?'yes — focus-data.json':'no — file:// origin'}</td></tr>
+    <tr><td class="dim">${MODE==='hosted'?'Stored in':'Saved to disk'}</td><td class="r mono" style="color:${MODE==='file'?'var(--bad)':'var(--focus)'}">${SERVER?'yes — focus-data.json':MODE==='hosted'?'this browser':'no — file:// origin'}</td></tr>
     <tr><td class="dim">Browser cache</td><td class="r mono" style="color:${HEALTH.write?'var(--focus)':'var(--bad)'}">${HEALTH.write?'yes':'no'}</td></tr>
     <tr><td class="dim">Times opened</td><td class="r mono">${db.loads}</td></tr>
     <tr><td class="dim">Tracking since</td><td class="r">${db.firstRun?fDate(db.firstRun):'—'}</td></tr>
-    <tr><td class="dim">Last written to disk</td><td class="r mono">${db.lastSync?fTime(db.lastSync):'—'}</td></tr>
+    ${SERVER?`<tr><td class="dim">Last written to disk</td><td class="r mono">${db.lastSync?fTime(db.lastSync):'—'}</td></tr>
     <tr><td class="dim">Daily backup</td><td class="r mono">${db.lastBackup
-      ?`focus-data.backup.json · ${dDate(db.lastBackup)}`:'—'}</td></tr>
+      ?`focus-data.backup.json · ${dDate(db.lastBackup)}`:'—'}</td></tr>`:''}
   </table>
-  ${SERVER?'':`<p class="dim" style="font-size:12.5px;margin:10px 0 0">
-    Launch with <span class="mono">Start Focus.bat</span> instead of double-clicking the HTML.</p>`}`;
+  ${MODE==='file'?`<p class="dim" style="font-size:12.5px;margin:10px 0 0">
+    Launch with <span class="mono">Start Focus.bat</span> instead of double-clicking the HTML.</p>`:''}`;
 }
 function paintSyncInfo(){
   const el=$('sync-info'); if(!el) return;
@@ -5312,6 +5332,8 @@ try{ localStorage.setItem(KEY,JSON.stringify(db)); }catch(e){}
 function paintWarn(){
   const el=$('warn'); if(!el) return;
 
+  if(MODE==='hosted'){ el.innerHTML=''; return; }   // storage lives in the browser; nothing to warn about
+
   if(SERVER){
     el.innerHTML = db.loads<=2
       ? `<div class="ok-note">Autosaving to <code>focus-data.json</code> on
@@ -5347,6 +5369,9 @@ function paintWarn(){
    moment on every load. So under SERVER, skip this and let initServer()'s
    rehydrate() do the one real reveal once the file's answer is in. */
 if(!SERVER) rehydrate();
+if(MODE==='hosted'&&'serviceWorker' in navigator){
+  window.addEventListener('load',()=>{ navigator.serviceWorker.register('sw.js').catch(()=>{}); });
+}
 if(prunePicks()) save();   // drop day-plans older than 30 days
 paintWarn();
 initServer();
