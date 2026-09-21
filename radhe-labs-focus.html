@@ -845,13 +845,14 @@ const MODE=(()=>{
 })();
 const SERVER=MODE==='server';
 document.documentElement.dataset.mode=MODE;
+let CACHE_HIT=false;          // did the browser actually hand us a saved database? (declared before boot() runs)
 let db=boot();
 if(!db.onboarded && (db.classes.length||db.assignments.length||db.sessions.length)) db.onboarded=true;
 
-let CACHE_HIT=false;          // did the browser actually hand us a saved database?
 function boot(){
+  let raw=null;
   try{
-    const raw=localStorage.getItem(KEY);
+    raw=localStorage.getItem(KEY);
     if(raw){ CACHE_HIT=true; return ensureSettings(Object.assign(clone(blank),JSON.parse(raw))); }
     const old=localStorage.getItem('focus.pomodoro.v1');   // migrate v1
     if(old){
@@ -861,7 +862,9 @@ function boot(){
         assignmentIds:[],segments:[]}));
       return ensureSettings(d);
     }
-  }catch(e){}
+  }catch(e){
+    if(raw){ try{ localStorage.setItem(KEY+'.unreadable',raw); }catch(_){} }
+  }
   return clone(blank);
 }
 let saveT=null, fileT=null, saveWarned=false;
