@@ -90,17 +90,11 @@ input[type=checkbox]{width:18px;height:18px;flex:none;accent-color:var(--focus);
 .switch.on .knob{left:21px}
 
 /* app shell / sidebar */
-@keyframes rl-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
-@keyframes rl-shake{0%,100%{transform:rotate(0)}20%{transform:rotate(-8deg)}40%{transform:rotate(7deg)}60%{transform:rotate(-5deg)}80%{transform:rotate(3deg)}}
 @keyframes rl-fadein{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
-.mascot-idle:hover{animation:rl-float var(--adur,2.4s) ease-in-out infinite;animation-delay:var(--adly,0s)}
-.mascot-idle.lvlup{animation:rl-shake .5s ease}
 .fade-in{animation:rl-fadein .22s ease}
 /* One place to switch motion off. Anything animated above should be listed
    here — colour/opacity changes stay, movement goes. */
 @media (prefers-reduced-motion:reduce){
-  .mascot-idle:hover{animation:none}
-  .mascot-idle.lvlup{animation:none}
   .fade-in{animation:none}
   .modal{animation:none}
   .veil{animation:none}
@@ -116,7 +110,6 @@ input[type=checkbox]{width:18px;height:18px;flex:none;accent-color:var(--focus);
 .wordmark{padding:0 6px}
 .wordmark .a{font-family:'Lora',serif;font-weight:600;font-size:15px;line-height:1.1}
 .wordmark .b{font-size:10.5px;color:var(--eyebrow)}
-.compcard{background:var(--panel2);border-radius:16px;padding:12px 14px;display:flex;flex-direction:column;gap:9px}
 .xpbar-track{height:5px;border-radius:999px;background:var(--track);overflow:hidden}
 .xpbar-fill{height:100%;border-radius:999px;background:var(--xpfill);transition:width .3s}
 .navitem{display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:12px;border:none;
@@ -142,11 +135,6 @@ input[type=checkbox]{width:18px;height:18px;flex:none;accent-color:var(--focus);
 .tile.on{background:var(--seltile);border-color:var(--focus)}
 .tile.on:hover{border-color:var(--focus)}
 .tile .nm{font-weight:700;font-size:11px;color:var(--tile)}
-.tile .lv{font-size:9.5px;color:var(--ghost)}
-.tile .del{position:absolute;top:1px;right:3px;opacity:0;background:none;border:none;color:var(--faint);
-  font-size:11px;padding:2px 4px;line-height:1;cursor:pointer}
-.tile:hover .del{opacity:1}
-.tile .del:hover{color:var(--bad)}
 
 /* timer */
 .stage{display:flex;flex-direction:column;align-items:center;padding:6px 0 2px}
@@ -381,11 +369,8 @@ th.r,td.r{text-align:right}
 <!-- ════ ONBOARDING ════ -->
 <div id="v-onboard" class="hide">
   <div class="ob-card">
-    <div id="ob-mascot" style="width:96px;height:96px;margin:0 auto 22px"></div>
     <h1 style="font-size:30px;margin:0 0 8px">Focus</h1>
-    <p style="font-size:14px;color:var(--label);margin:0 0 30px;line-height:1.6">Your own calm corner for focus.<br>Just you, your work, and a little company.</p>
-    <p class="lbl" style="letter-spacing:.12em">Pick your companion</p>
-    <div id="ob-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:26px;padding:2px"></div>
+    <p style="font-size:14px;color:var(--label);margin:0 0 30px;line-height:1.6">Your own calm corner for focus.</p>
     <button class="primary" style="width:100%;padding:14px;font-size:15px" onclick="beginApp()">Begin</button>
   </div>
 </div>
@@ -395,21 +380,6 @@ th.r,td.r{text-align:right}
   <div class="sidebar">
     <div class="wordmark"><div class="a">Focus</div></div>
     <span id="live" class="hide"></span>
-
-    <!-- Companion avatar/level card — hidden here on purpose (kept in Settings
-         > Companions instead) so the sidebar doesn't show it at a glance.
-         paintSidebar() still writes into sb-mascot/sb-name/etc. below, so the
-         elements stay in the DOM, just not shown — leave them in place. -->
-    <div class="compcard hide">
-      <div class="row" style="gap:10px">
-        <div id="sb-mascot" style="width:38px;height:38px;flex:none"></div>
-        <div style="min-width:0">
-          <div id="sb-name" style="font-size:13px;font-weight:700;line-height:1.2"></div>
-          <div class="dim" style="font-size:10.5px">Lv <span id="sb-lvl-num"></span> · <span id="sb-xp"></span></div>
-        </div>
-      </div>
-      <div class="xpbar-track"><div id="sb-xpbar" class="xpbar-fill" style="width:0%"></div></div>
-    </div>
 
     <div style="display:flex;flex-direction:column;gap:4px">
       <button id="tab-daily" class="navitem on" onclick="tab('daily')">
@@ -529,7 +499,6 @@ th.r,td.r{text-align:right}
           </div>
           <div class="ctl" id="ctl"></div>
           <div class="chips" id="working"></div>
-          <div id="xp-note" class="faint" style="font-size:11.5px;margin-top:16px"></div>
         </div>
       </div>
 
@@ -616,22 +585,6 @@ th.r,td.r{text-align:right}
         <input id="s-caphrs" type="number" min="0.5" max="24" step="0.5">
         <p class="faint" id="s-urg-note" style="font-size:11.5px;margin:9px 0 0"></p>
         <button class="primary sm" style="margin-top:14px" onclick="saveUrgency(this)">Save urgency</button>
-      </div>
-
-      <div class="card" style="margin-bottom:16px">
-        <div class="row sp wrapf" style="margin-bottom:2px">
-          <span class="lbl" style="margin:0">Companions</span>
-          <button class="xs" onclick="addCompanionModal()">+ Add companion</button>
-        </div>
-        <div id="set-comp-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px"></div>
-        <div style="margin-top:18px;padding-top:18px;border-top:1px solid var(--line2)">
-          <div class="row sp" style="align-items:baseline">
-            <div id="set-comp-name" style="font-size:13.5px;font-weight:700"></div>
-            <div id="set-comp-next" class="dim" style="font-size:11.5px"></div>
-          </div>
-          <div class="xpbar-track" style="height:8px;margin-top:8px"><div id="set-comp-bar" class="xpbar-fill" style="width:0%"></div></div>
-          <div class="faint" style="font-size:11.5px;margin-top:10px">25 XP per finished focus cycle, 10 for a completed assignment. Companions grow to Lv 100.</div>
-        </div>
       </div>
 
       <!-- Progress visual — hidden while the sidebar goal card is parked.
@@ -760,7 +713,7 @@ const relName=r=>((BIO_RELATIONS.find(x=>x[0]===r)||[])[1])||'';
 const blank={v:3,settings:{focus:25,brk:5,sound:true,notify:false,tz:'America/New_York',goal:120,
     urgency:{wDue:40,wWork:25,wImp:20,wProc:15,capHrsPerDay:3}},
   classes:[],assignments:[],sessions:[],active:null,lastExport:null,lastSync:null,lastImport:null,lastBackup:null,
-  loads:0,firstRun:null, mascot:'buddy', motivationVisual:'plant', companions:{}, customCompanions:[],
+  loads:0,firstRun:null, motivationVisual:'plant',
   journeys:[], diary:[], stickies:[], exams:[], study:clone(blankStudy),
   /* Tasks you've hand-picked onto a given day, keyed 'YYYY-MM-DD' -> [asgId].
      Deliberately NOT the task's due date: pulling something into today is a
@@ -1050,74 +1003,11 @@ function chime(up){
     try{ new Notification(up?'Break over':'Focus block done',{body:up?'Start your next cycle.':'Time to rate and take a break.'}); }catch(e){}
 }
 
-/* ═══════════════ companions — leveling ═══════════════
-   Each companion accrues real, permanent XP (never mocked). 25 XP per
-   finished focus cycle, 10 XP per completed assignment, always to whichever
-   companion is active (db.mascot) at the moment the XP is earned. The curve
-   next(level) = 300 + level*12 matches the design spec; level caps at 100. */
-const ROSTER=[
-  /* one built-in, image-free placeholder; add your own in Settings */
-  {id:'buddy', name:'Buddy', scale:100,
-   img:"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='54' r='38' fill='%2378b98b'/%3E%3Ccircle cx='37' cy='48' r='5' fill='%23223'/%3E%3Ccircle cx='63' cy='48' r='5' fill='%23223'/%3E%3Cpath d='M36 66q14 12 28 0' fill='none' stroke='%23223' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E"},
-];
-const MAX_COMPANIONS=50;
-const allCompanions=()=>[...ROSTER,...(db.customCompanions||[])];
-const companion=id=>allCompanions().find(r=>r.id===id)||ROSTER[0];
-const xpToNext=level=>300+level*12;
-function levelInfo(totalXp){
-  let level=1, rem=Math.max(0,totalXp||0);
-  while(level<100){ const need=xpToNext(level); if(rem<need) break; rem-=need; level++; }
-  const maxed=level>=100;
-  return {level, xp:maxed?xpToNext(99):rem, next:maxed?null:xpToNext(level), maxed};
-}
-const compXp=id=>(db.companions&&db.companions[id])||0;
-function addXp(id,amt){
-  db.companions=db.companions||{};
-  const lvlBefore=levelInfo(compXp(id)).level;
-  db.companions[id]=(db.companions[id]||0)+amt;
-  save();
-  paintSidebar();
-  if(cur==='set') paintSettingsCompanions();
-  if(levelInfo(compXp(id)).level>lvlBefore){
-    document.querySelectorAll(`.mascot-idle[data-cid="${id}"]`).forEach(el=>{
-      el.classList.add('lvlup');
-      setTimeout(()=>el.classList.remove('lvlup'),520);
-    });
-  }
-}
-function mascotImg(id,px){
-  const m=companion(id);
-  const h=[...m.id].reduce((a,c)=>a+c.charCodeAt(0),0);
-  const dur=(2.4*(1+((h%31)-15)/100)).toFixed(2);
-  const delay=(-(h%97)/97*dur).toFixed(2);
-  const src=m.img||`sprites/${m.id}.png`;
-  const scale=m.scale||100;
-  return `<span class="mascot-idle" data-cid="${m.id}" style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;overflow:hidden;--adur:${dur}s;--adly:${delay}s">
-    <img src="${src}" alt="${esc(m.name)}" draggable="false"
-    style="width:${scale}%;height:${scale}%;object-fit:contain;display:block;flex:none"></span>`;
-}
-function mascotBox(id,px){
-  return `<div style="width:${px}px;height:${px}px;display:flex;align-items:center;justify-content:center;overflow:hidden">${mascotImg(id,px)}</div>`;
-}
-
 /* ═══════════════ onboarding ═══════════════ */
-function renderOnboard(){
-  $('ob-mascot').innerHTML=mascotImg(db.mascot,96);
-  $('ob-grid').innerHTML=allCompanions().map(m=>{
-    const li=levelInfo(compXp(m.id)), on=db.mascot===m.id;
-    return `<button class="tile ${on?'on':''}" onclick="pickMascotOnboard('${m.id}')">
-      <span style="width:52px;height:52px">${mascotImg(m.id,52)}</span>
-      <span class="nm">${esc(m.name)}</span>
-      <span class="lv">Lv ${li.level}</span>
-    </button>`;
-  }).join('');
-}
-function pickMascotOnboard(id){ db.mascot=id; save(); renderOnboard(); }
 function beginApp(){ db.onboarded=true; save(); showShell(); }
 function showShell(){
   $('v-onboard').classList.add('hide');
   $('shell').classList.remove('hide');
-  paintSidebar();
   tab(cur||'run');
 }
 
@@ -1142,14 +1032,6 @@ function netFocusMsOn(dk){
   return Math.max(0,ms);
 }
 function todayNetFocusMs(){ return netFocusMsOn(today()); }
-function paintSidebar(){
-  $('sb-mascot').innerHTML=mascotImg(db.mascot,38);
-  const m=companion(db.mascot), li=levelInfo(compXp(db.mascot));
-  $('sb-name').textContent=m.name;
-  $('sb-lvl-num').textContent=li.level;
-  $('sb-xp').textContent=li.maxed?'Max level':`${li.xp}/${li.next} XP`;
-  $('sb-xpbar').style.width=(li.maxed?100:Math.round(li.xp/li.next*100))+'%';
-}
 
 /* ═══════════════ RULES ═══════════════
    ratio r        = break ÷ focus, fixed at session start
@@ -2158,7 +2040,6 @@ function rehydrate(){
   A=db.active||null;
   if(db.onboarded){
     $('v-onboard').classList.add('hide'); $('shell').classList.remove('hide');
-    paintSidebar();
     /* A live session always wins the boot, whatever tab was last active —
        jump to Focus and sync the nav highlight so it matches what's shown.
        Otherwise just open the current tab normally (Daily on a cold start). */
@@ -2170,7 +2051,6 @@ function rehydrate(){
     else tab(cur);
     repaint();
   } else {
-    renderOnboard();
     $('shell').classList.add('hide'); $('v-onboard').classList.remove('hide');
   }
   paintWarn();
@@ -2329,7 +2209,6 @@ function toggleAsg(id,on,sessionId,cycle){
   const a=asg(id); if(!a) return;
   if(a.ann) return;        // announcements are reminders, not work — never completable
   if(a.habitId) return on?completeHabitAsg(id,sessionId,cycle):uncompleteHabitAsg(id);
-  if(on&&!a.done) addXp(db.mascot,10);
   a.done=on;
   a.doneAt=on?Date.now():null;
   a.doneSession=on?(sessionId||null):null;
@@ -2752,7 +2631,6 @@ function completeHabitAsg(id,sessionId,cycle){
   const a=asg(id), h=findHabit(a?.habitId); if(!a||!h) return;
   a.done=true; a.doneAt=Date.now(); a.doneSession=sessionId||null; a.doneCycle=cycle||null; a.habitOutcome='done';
   h.history.push({date:a.due,outcome:'done'});
-  addXp(db.mascot,10);
   advanceHabit(h);
   save();
 }
@@ -3049,7 +2927,7 @@ function diaryBioPill(e){
 }
 
 function diaryEntry(o){ return {id:uid(), mood:o.mood||null, tagId:o.tagId||null, title:o.title||'', body:o.body,
-  date:o.date||today(), createdAt:o.createdAt||Date.now(), photos:o.photos||[], companionId:o.companionId||null,
+  date:o.date||today(), createdAt:o.createdAt||Date.now(), photos:o.photos||[],
   sessionId:o.sessionId||null, bioEntryId:o.bioEntryId||null}; }
 /* older entries predate tags — they were mood-first, which is what Daily is now */
 const fixDiary=e=>{
@@ -3113,8 +2991,8 @@ function diaryModal(entryId,presetDate,bioEntryId){
   const linkedBio=bioEntry(bioEntryId||e?.bioEntryId);
   // default a new entry to Daily only if that day doesn't already have one
   const defTag=linkedBio?'bio':(diaEntriesFor(date).some(x=>fixDiary(x).tagId==='daily')?null:'daily');
-  diaryDraft=e?{mood:e.mood,tagId:e.tagId,title:e.title,body:e.body,photos:[...e.photos],companionId:e.companionId,date:e.date,bioEntryId:e.bioEntryId}
-             :{mood:null,tagId:defTag,title:linkedBio?`About ${linkedBio.title}`:'',body:'',photos:[],companionId:null,date,bioEntryId:linkedBio?.id||null};
+  diaryDraft=e?{mood:e.mood,tagId:e.tagId,title:e.title,body:e.body,photos:[...e.photos],date:e.date,bioEntryId:e.bioEntryId}
+             :{mood:null,tagId:defTag,title:linkedBio?`About ${linkedBio.title}`:'',body:'',photos:[],date,bioEntryId:linkedBio?.id||null};
   const tpls=db.journalTemplates||[];
   modal(`<h2 style="font-size:17px">${diaryEditId?'Edit entry':'New entry'}</h2>
     ${linkedBio?`<p class="dim" style="font-size:12.5px;margin:5px 0 0">Journal about <b>${esc(linkedBio.title)}</b>. This entry also appears in your Journal calendar and history.</p>`:''}
@@ -3145,14 +3023,12 @@ function diaryModal(entryId,presetDate,bioEntryId){
       <label class="lbl" style="margin-top:16px">Photos <span class="faint" style="text-transform:none;letter-spacing:0">— optional</span></label>
       <div class="row wrapf" id="dm-photos" style="gap:8px"></div>
       <input type="file" id="dm-file" accept="image/*" multiple class="hide" onchange="pickDiaryPhotos(this)">
-      <label class="lbl" style="margin-top:16px">Companion <span class="faint" style="text-transform:none;letter-spacing:0">— optional</span></label>
-      <div class="row wrapf" id="dm-comps" style="gap:6px"></div>
       <div class="row" style="gap:9px;margin-top:20px">
         <button class="primary" id="dm-go">Save entry</button>
         <button class="ghost" onclick="closeModal()">Cancel</button>
       </div>
     </div>`,true);
-  drawDiaryTags(); drawDiaryStats(); drawDiaryPhotos(); drawDiaryComps();
+  drawDiaryTags(); drawDiaryStats(); drawDiaryPhotos();
   $('dm-date').oninput=()=>{ diaryDraft.date=$('dm-date').value||diaryDraft.date; drawDiaryStats(); };
   $('dm-go').onclick=saveDiaryEntry;
 }
@@ -3216,13 +3092,6 @@ function pickDiaryPhotos(inp){
   inp.value='';
 }
 function removeDiaryPhoto(i){ diaryDraft.photos.splice(i,1); drawDiaryPhotos(); }
-function drawDiaryComps(){
-  const el=$('dm-comps'); if(!el) return;
-  el.innerHTML=allCompanions().map(m=>
-    `<button class="tile ${diaryDraft.companionId===m.id?'on':''}" style="padding:6px 4px;min-width:0" onclick="pickDiaryCompanion('${m.id}')">
-      <span style="width:30px;height:30px">${mascotImg(m.id,30)}</span></button>`).join('');
-}
-function pickDiaryCompanion(id){ diaryDraft.companionId=diaryDraft.companionId===id?null:id; drawDiaryComps(); }
 function saveDiaryEntry(){
   const body=$('dm-text').value.trim();
   if(!body){ toast('Write something before saving.'); return; }
@@ -3232,7 +3101,7 @@ function saveDiaryEntry(){
   const date=$('dm-date').value||today();
   db.diary=db.diary||[];
   const fields={mood:diaryDraft.mood,tagId:diaryDraft.tagId,title,body,
-    photos:diaryDraft.photos,companionId:diaryDraft.companionId,date,bioEntryId:diaryDraft.bioEntryId||null};
+    photos:diaryDraft.photos,date,bioEntryId:diaryDraft.bioEntryId||null};
   let entry;
   if(diaryEditId){
     entry=db.diary.find(x=>x.id===diaryEditId);
@@ -3451,9 +3320,6 @@ function paintDiary(){
         <p style="white-space:pre-wrap;margin:16px 0 0;font-size:14px;line-height:1.65">${esc(e.body)}</p>
         ${e.photos.length?`<div class="row wrapf" style="gap:8px;margin-top:16px">
           ${e.photos.map(p=>`<div class="dia-photo"><img src="${p}"></div>`).join('')}</div>`:''}
-        ${e.companionId&&companion(e.companionId)?`<div class="row" style="gap:8px;margin-top:16px;align-items:center">
-          <span style="width:30px;height:30px">${mascotImg(e.companionId,30)}</span>
-          <span class="dim" style="font-size:12.5px">${esc(companion(e.companionId).name)}</span></div>`:''}
       </div>`;
     }
   } else if(diaSel){
@@ -4460,7 +4326,7 @@ $('in-focus').oninput=$('in-break').oninput=noteRatio;
 function startSession(){
   const f=Math.max(1,+$('in-focus').value||25), b=Math.max(1,+$('in-break').value||5);
   A={ id:uid(), started:Date.now(), ended:null,
-      name:$('in-name').value.trim()||'', logo:'', logoImg:null, mascot:db.mascot,
+      name:$('in-name').value.trim()||'', logo:'', logoImg:null,
       focusMin:f, brkMin:b, ratio:b/f,
       assignmentIds:[...pickSel], cycles:[], segments:[], journal:'',
       phase:'focus', phaseStart:Date.now(), target:f*MIN,
@@ -4542,9 +4408,6 @@ function paint(){
         ${a.classId?classDot(a.classId):''}${esc(a.title.length>34?a.title.slice(0,33)+'…':a.title)}</button>`).join('')
     : '';
 
-  const m=companion(db.mascot), li=levelInfo(compXp(db.mascot));
-  $('xp-note').textContent = li.maxed?`${m.name} is fully grown at Lv 100`:`+25 XP for ${m.name} when this block ends`;
-
   paintTasks(); paintCycles(); paintFocHeader();
   $('live').textContent=clock(rem)+' · '+(A.phase==='break'?'break':'focus');
   document.title=clock(rem)+' · '+(A.phase==='break'?'Break':'Focus');
@@ -4569,7 +4432,6 @@ function endFocus(){
 function afterRating(r,journal){
   A.pending.rating=r; A.pending.journal=journal||'';
   A.cycles.push(A.pending); A.earned=A.pending.earned; A.pending=null;
-  addXp(A.mascot||db.mascot,25);
   A.phase='break'; A.phaseStart=Date.now(); A.target=A.earned;
   A.paused=false; A.pausedAt=null; A.pausedMs=0; beeped=false; A.segStart=null;
   save(); run();
@@ -4734,7 +4596,7 @@ function finishSession(){
       over:Math.max(0,e-A.target),earned:Math.round(e*A.ratio),breakActual:0,overBreak:0,rating:null,
       done:db.assignments.filter(x=>x.done&&x.doneSession===A.id&&x.doneCycle===n)
         .map(x=>({id:x.id,title:x.title,classId:x.classId,at:x.doneAt}))});
-    addXp(A.mascot||db.mascot,25);
+    save();
   } else if(A.phase==='break'){
     const c=A.cycles[A.cycles.length-1];
     if(c&&!c.breakActual){ c.breakActual=elapsed(); c.overBreak=Math.max(0,elapsed()-c.earned); }
@@ -4770,7 +4632,6 @@ function finishSession(){
       <tr><td class="dim">Break taken</td><td class="r mono">${dur(s.brk)} of ${dur(s.earned)} earned</td></tr>
       <tr><td class="dim">Break overrun</td><td class="r mono" style="color:var(--bad)">−${dur(s.overBreak)}</td></tr>
       <tr><td class="dim"><strong>Net focus</strong></td><td class="r mono"><strong>${dur(s.net)}</strong></td></tr>
-      <tr><td class="dim">XP earned</td><td class="r mono" style="color:var(--xptx)">+${s.cycles*25}</td></tr>
       <tr><td class="dim">Assignments completed</td><td class="r mono">${done.length} of ${A.assignmentIds.length}</td></tr>
     </table>
     ${done.length?`<div style="font-size:13px;margin-bottom:16px">${done.map(a=>
@@ -5112,14 +4973,11 @@ function renderLogRows(){
     const dayTotal=byDay[k];
     const daySummary=dur(dayTotal)+' focused';
     const editing=logEditingId===s.id;
-    const xp=s.cycles.length*25;
-    const mascotId=s.mascot||db.mascot;
     return `${showDay?`<div class="row sp" style="align-items:baseline;margin:22px 2px 8px">
         <span class="lbl" style="margin:0">${esc(dayLabel)}</span>
         <span class="faint" style="font-size:11px">${esc(daySummary)}</span>
       </div>`:''}
       <div class="row" style="gap:14px;background:var(--panel);border:1px solid ${editing?'var(--renameline)':'var(--line)'};border-radius:16px;padding:12px 14px;margin-bottom:8px">
-        <div style="width:36px;height:36px;flex:none">${mascotImg(mascotId,36)}</div>
         <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:3px">
           ${editing?`<input id="log-rn-inp" value="${esc(logDraft)}" autocomplete="off" placeholder="Name this session"
               style="width:100%;box-sizing:border-box;font-weight:700;font-size:14px;color:var(--tx);padding:5px 9px;border-radius:9px;border:1.5px solid var(--focus);background:var(--renamebg);outline:none"
@@ -5127,7 +4985,6 @@ function renderLogRows(){
             :`<div style="font-weight:700;font-size:14px;color:${s.name?'var(--tx)':'var(--ghost)'};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer" onclick="expandSession('${s.id}')">${esc(s.name||'Untitled session')}</div>`}
           <div class="faint" style="font-size:11.5px">${Math.max(1,Math.round((s.ended-s.started)/MIN))} min · ${fTime(s.started)}</div>
         </div>
-        <div style="font-size:11.5px;font-weight:700;color:var(--xptx);flex:none">+${xp} XP</div>
         <button class="iconbtn" title="Rename session" onclick="startLogRename('${s.id}')">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M4 20h4L20 8l-4-4L4 16v4z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </button>
@@ -5155,14 +5012,13 @@ function expandSession(id){
   const s=db.sessions.find(x=>x.id===id); if(!s) return;
   const x=summarize(s), att=s.assignmentIds||[];
   modal(`<div class="row" style="gap:12px;align-items:center">
-      <div style="width:40px;height:40px">${mascotImg(s.mascot||db.mascot,40)}</div>
       <div><h2 style="font-size:17px">${esc(s.name||'Untitled session')}</h2>
       <p class="dim" style="font-size:12.5px;margin:2px 0 0">${fDay(s.started)} · ${fTime(s.started)}–${s.ended?fTime(s.ended):'—'}</p></div>
     </div>
     <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(112px,1fr));gap:8px;margin:16px 0 14px">
       ${stat(dur(x.focus),'Raw focus')}${stat('+'+dur(x.over),'Overtime','var(--over)')}
       ${stat('−'+dur(x.overBreak),'Overrun','var(--bad)')}${stat(dur(x.net),'Net')}
-      ${stat(x.avg?x.avg.toFixed(2):'—','Rating')}${stat('+'+(s.cycles.length*25),'XP earned','var(--xptx)')}
+      ${stat(x.avg?x.avg.toFixed(2):'—','Rating')}
     </div>
     ${cycTable(s.cycles)}
     ${att.length?`<div style="margin-top:14px"><span class="lbl">Assignments (${x.done}/${att.length})</span>
@@ -5202,72 +5058,6 @@ function toggleNotify(){
   if(db.settings.notify&&window.Notification&&Notification.permission==='default') Notification.requestPermission();
   paintSettingsToggles(); save();
 }
-function paintSettingsCompanions(){
-  const customIds=new Set((db.customCompanions||[]).map(c=>c.id));
-  $('set-comp-grid').innerHTML=allCompanions().map(m=>{
-    const li=levelInfo(compXp(m.id)), on=db.mascot===m.id;
-    return `<div class="tile ${on?'on':''}" onclick="pickMascotSettings('${m.id}')">
-      ${customIds.has(m.id)?`<button class="del" title="Remove companion" onclick="event.stopPropagation();delCustomCompanion('${m.id}')">✕</button>`:''}
-      <span style="width:48px;height:48px">${mascotImg(m.id,48)}</span>
-      <span class="nm" style="font-size:10.5px">${esc(m.name)}</span>
-      <span class="lv">Lv ${li.level}</span>
-    </div>`;
-  }).join('');
-  const m=companion(db.mascot), li=levelInfo(compXp(db.mascot));
-  $('set-comp-name').textContent=`${m.name} · Lv ${li.level}`;
-  $('set-comp-next').textContent=li.maxed?'Max level reached':`${li.next-li.xp} XP to Lv ${li.level+1}`;
-  $('set-comp-bar').style.width=(li.maxed?100:Math.round(li.xp/li.next*100))+'%';
-}
-function pickMascotSettings(id){ db.mascot=id; save(); paintSettingsCompanions(); paintSidebar(); }
-let newCompPick={img:null};
-function addCompanionModal(){
-  if(allCompanions().length>=MAX_COMPANIONS){ toast(`You've reached the ${MAX_COMPANIONS}-companion limit — remove one to add another.`); return; }
-  newCompPick={img:null};
-  modal(`<h2 style="font-size:17px">New companion</h2>
-    <label class="lbl" style="margin-top:16px">Image</label>
-    <div class="row" style="gap:10px">
-      <div class="logo" id="nc-prev" style="width:56px;height:56px;font-size:24px;overflow:hidden">🐾</div>
-      <button class="sm" onclick="$('nc-file').click()">Upload image</button>
-      <input type="file" id="nc-file" accept="image/*" class="hide" onchange="pickCompanionImg(this)">
-    </div>
-    <label class="lbl" style="margin-top:16px">Name</label>
-    <input id="nc-name" placeholder="Buddy" autocomplete="off" maxlength="24">
-    <div class="row" style="gap:9px;margin-top:20px">
-      <button class="primary" id="nc-go">Add companion</button>
-      <button class="ghost" onclick="closeModal()">Cancel</button>
-    </div>`);
-  $('nc-name').focus();
-  $('nc-go').onclick=saveNewCompanion;
-}
-function pickCompanionImg(inp){
-  const f=inp.files[0]; if(!f) return;
-  const r=new FileReader();
-  r.onload=()=>{ const im=new Image(); im.onload=()=>{
-      const c=document.createElement('canvas'); c.width=c.height=200;
-      const x=c.getContext('2d'), s=Math.min(im.width,im.height);
-      x.drawImage(im,(im.width-s)/2,(im.height-s)/2,s,s,0,0,200,200);
-      // PNG, not JPEG — JPEG has no alpha channel, so a transparent source
-      // (most companion sprites) would flatten to opaque black.
-      newCompPick.img=c.toDataURL('image/png');
-      $('nc-prev').innerHTML=`<img src="${newCompPick.img}" style="width:100%;height:100%;object-fit:cover">`;
-    }; im.src=r.result; };
-  r.readAsDataURL(f); inp.value='';
-}
-function saveNewCompanion(){
-  if(allCompanions().length>=MAX_COMPANIONS){ toast(`You've reached the ${MAX_COMPANIONS}-companion limit — remove one to add another.`); return; }
-  const name=$('nc-name').value.trim(); if(!name) return;
-  if(!newCompPick.img){ toast('Choose an image first.'); return; }
-  db.customCompanions=db.customCompanions||[];
-  db.customCompanions.push({id:uid(),name,img:newCompPick.img,createdAt:Date.now()});
-  save(); closeModal();
-  if(cur==='set') paintSettingsCompanions();
-}
-function delCustomCompanion(id){
-  db.customCompanions=(db.customCompanions||[]).filter(c=>c.id!==id);
-  delete db.companions[id];
-  if(db.mascot===id) db.mascot='buddy';
-  save(); paintSettingsCompanions(); paintSidebar();
-}
 function paintTeachLang(){
   if(!$('tl-en')) return;
   const l=teachLang();
@@ -5284,7 +5074,7 @@ function paintVisualToggle(){
   $('vis-plant').classList.toggle('on',db.motivationVisual==='plant');
   $('vis-jar').classList.toggle('on',db.motivationVisual==='jar');
 }
-function setVisual(v){ db.motivationVisual=v; save(); paintVisualToggle(); paintSidebar(); }
+function setVisual(v){ db.motivationVisual=v; save(); paintVisualToggle(); }
 
 function paintUrgencySettings(){
   const u=db.settings.urgency;
@@ -5316,7 +5106,7 @@ function saveSettings(b){
   const tz=$('s-tz').value.trim()||'America/New_York';
   try{ new Intl.DateTimeFormat('en-US',{timeZone:tz}); db.settings.tz=tz; }
   catch(e){ alert('Unknown time zone — keeping '+db.settings.tz); $('s-tz').value=db.settings.tz; }
-  save(); paintSidebar(); b.textContent='Saved'; setTimeout(()=>b.textContent='Save',1200);
+  save(); b.textContent='Saved'; setTimeout(()=>b.textContent='Save',1200);
 }
 function exportData(){
   db.lastExport=Date.now(); save();
@@ -5369,7 +5159,7 @@ async function eraseAll(){
 }
 function wipe(){
   modal(`<h2 style="font-size:17px">Erase everything?</h2>
-    <p class="dim" style="font-size:13px">Classes, assignments, sessions, journals, companion levels. Cannot be undone. Export first.</p>
+    <p class="dim" style="font-size:13px">Classes, assignments, sessions, journals. Cannot be undone. Export first.</p>
     <div class="row" style="gap:9px;margin-top:18px">
       <button class="primary" style="background:var(--bad);color:#fff" onclick="eraseAll()">Erase</button>
       <button class="ghost" onclick="closeModal()">Cancel</button></div>`);
@@ -5399,7 +5189,7 @@ function tab(t){
     $('s-tz').value=db.settings.tz; $('s-goal').value=db.settings.goal;
     $('exp-info').textContent=db.lastExport?'Last export: '+fExact(db.lastExport):'Never exported.';
     paintSettingsToggles(); paintUrgencySettings();
-    paintSettingsCompanions(); paintVisualToggle();
+    paintVisualToggle();
     paintHealth(); paintSyncInfo(); }
   flashIn($('v-'+t));
 }
@@ -5433,7 +5223,6 @@ function paintSyncInfo(){
     : '<span style="color:var(--over)">Opened straight off disk — launch with Start Focus.bat to save.</span>';
 }
 function repaint(){
-  paintSidebar();
   if(cur==='asg')paintAsg(); else if(cur==='jrn')paintJourneys(); else if(cur==='dia')paintDiary();
   else if(cur==='stk')paintStickies();
   else if(cur==='bio')paintBio();
@@ -5546,7 +5335,7 @@ function paintWarn(){
    Under SERVER, focus-data.json is about to be fetched in initServer() below
    and is the real source of truth; revealing here first from a synchronous,
    possibly-stale-or-empty localStorage guess (then swapping right after) is
-   exactly what made the "pick your companion" onboarding screen flash for a
+   exactly what made the welcome screen flash for a
    moment on every load. So under SERVER, skip this and let initServer()'s
    rehydrate() do the one real reveal once the file's answer is in. */
 if(!SERVER) rehydrate();
