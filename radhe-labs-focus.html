@@ -2121,28 +2121,24 @@ async function syncOut(){
   return ok;
 }
 
-/* focus-data.json is the source of truth when it's newer than what the
-   browser handed us — that's what makes double-clicking the HTML survivable. */
+/* Under the local server, focus-data.json is the source of truth and always wins
+   at startup. The copy the browser keeps in localStorage can be stale (another
+   browser has written the file since) or can be a freshly seeded blank database
+   with a brand-new timestamp; letting either outrank the file would overwrite
+   real data on the next save. */
 async function adoptFromFile(){
   if(!SERVER) return 'none';
   const txt=await rFile('focus-data.json');
   if(txt==null) return 'none';
   let f; try{ f=JSON.parse(txt); }catch(e){ return 'bad'; }
   if(!f||!Array.isArray(f.sessions)||!Array.isArray(f.assignments)) return 'bad';
-  // A fresh boot always carries a brand-new savedAt, so timestamps alone would
-  // make throwaway in-memory state look newer than the real file and clobber it.
-  // Only trust our own copy if the browser genuinely restored one.
-  const mineEmpty=!db.sessions.length&&!db.assignments.length;
-  if(!CACHE_HIT||mineEmpty||(f.savedAt||0)>(db.savedAt||0)){
-    const loads=db.loads;
-    db=ensureSettings(Object.assign(clone(blank),f));
-    db.loads=Math.max(loads||0,f.loads||0);
-    if(!db.onboarded && (db.classes.length||db.assignments.length||db.sessions.length)) db.onboarded=true;
-    CACHE_HIT=true;                     // the file is now our restored copy
-    cacheSave();
-    return 'loaded';
-  }
-  return 'kept';
+  const loads=db.loads;
+  db=ensureSettings(Object.assign(clone(blank),f));
+  db.loads=Math.max(loads||0,f.loads||0);
+  if(!db.onboarded && (db.classes.length||db.assignments.length||db.sessions.length)) db.onboarded=true;
+  CACHE_HIT=true;                     // the file is now our restored copy
+  cacheSave();
+  return 'loaded';
 }
 function rehydrate(){
   clearInterval(tick); tick=null;
