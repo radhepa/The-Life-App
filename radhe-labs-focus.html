@@ -954,6 +954,7 @@ function save(){
   db.savedAt=Date.now();
   clearTimeout(saveT); saveT=setTimeout(cacheSave,60);
   clearTimeout(fileT); fileT=setTimeout(()=>{ if(SERVER) syncOut(); },1200);
+  if(window.RLSync) RLSync.dirty();
 }
 function cacheSave(){
   try{ localStorage.setItem(KEY,JSON.stringify(db)); return true; }
@@ -5333,7 +5334,8 @@ function tab(t){
     $('exp-info').textContent=db.lastExport?'Last export: '+fExact(db.lastExport):'Never exported.';
     paintSettingsToggles(); paintUrgencySettings();
     paintVisualToggle();
-    paintHealth(); paintSyncInfo(); }
+    paintHealth(); paintSyncInfo();
+    if(window.RLSync) RLSync.paintCard(); }
   flashIn($('v-'+t));
 }
 /* retrigger the entrance animation on an element that's already in the DOM —
@@ -5465,7 +5467,7 @@ try{ localStorage.setItem(KEY,JSON.stringify(db)); }catch(e){}
 function paintWarn(){
   const el=$('warn'); if(!el) return;
 
-  if(MODE==='hosted'){ el.innerHTML=''; return; }   // storage lives in the browser; nothing to warn about
+  if(MODE==='hosted'){ el.innerHTML=window.RLSync?RLSync.banner():''; return; }   // storage lives in the browser; only nudge towards sync
 
   if(SERVER){
     el.innerHTML = db.loads<=2
@@ -5507,7 +5509,9 @@ if(MODE==='hosted'&&'serviceWorker' in navigator){
 }
 if(prunePicks()) save();   // drop day-plans older than 30 days
 paintWarn();
-initServer();
+window.appReady=initServer();
 initMobileNav();
 checkJourneyEnds(); journeyTick();
 </script>
+<script src="sync-core.js"></script>
+<script src="sync.js"></script>

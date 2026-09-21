@@ -169,7 +169,7 @@
 
   /* ── engine ──────────────────────────────────────────────────────────── */
   /* env: {
-       fetch, storage:{get,set,del}, now(), deviceName,
+       fetch, storage:{get,set,del}, now(), deviceName, apiBase (optional, e.g. GitHub Enterprise),
        getLocal()        -> {content, savedAt}      snapshot without device keys
        applyContent(c,t) -> void                    replace synced data, keep device keys
        onState(state)    -> void
@@ -177,7 +177,7 @@
   function createEngine(env) {
     var K = { cfg: 'radhelabs.sync.cfg', base: 'radhelabs.sync.base' };
     var PATH = 'focus-data.json';
-    var API = 'https://api.github.com';
+    var API = env.apiBase || 'https://api.github.com';
     var cfg = readJSON(K.cfg);
     var running = null, again = false, review = null;
     var state = { status: cfg ? 'idle' : 'off', message: '', lastSyncAt: (cfg && cfg.lastSyncAt) || 0, pending: false };
