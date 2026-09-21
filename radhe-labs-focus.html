@@ -136,6 +136,57 @@ html[data-mode=hosted] .hide-hosted{display:none}
 .main{flex:1;padding:44px 48px;max-width:760px;margin:0 auto;width:100%;min-width:0}
 @media (max-width:900px){ .main{padding:26px 18px} .sidebar{width:190px} }
 
+/* ── phone layout ──────────────────────────────────────────────────────────
+   The sidebar becomes a bottom tab bar (Daily · Focus · Tasks · Journeys · More).
+   Everything else lives in the More sheet, which initMobileNav() builds. */
+#tab-more,#more-sheet{display:none}
+@media (max-width:760px){
+  html{-webkit-text-size-adjust:100%}
+  body{overscroll-behavior-y:none;-webkit-tap-highlight-color:transparent}
+  button,.chip,.tile,.navitem{touch-action:manipulation}
+  /* 16px stops iOS from zooming the page when a field is focused */
+  input,textarea,select{font-size:16px}
+  #shell{flex-direction:column;min-height:100vh;min-height:100dvh}
+  .sidebar{position:fixed;left:0;right:0;bottom:0;top:auto;width:auto;height:auto;z-index:50;
+    flex-direction:row;align-items:stretch;gap:0;overflow:visible;
+    padding:6px 6px calc(6px + env(safe-area-inset-bottom));
+    border-right:none;border-top:1px solid var(--line)}
+  .sidebar .wordmark,.sidebar .navspacer{display:none}
+  .navlist{flex:1;flex-direction:row!important;gap:0!important;justify-content:space-around}
+  .navitem{flex:1;min-width:0;flex-direction:column;justify-content:center;align-items:center;gap:3px;
+    padding:7px 2px 5px;font-size:10.5px;border-radius:12px;text-align:center}
+  .navitem svg{width:22px;height:22px}
+  .navitem.nav2{display:none}
+  #tab-more{display:flex}
+  .main{padding:18px 16px calc(84px + env(safe-area-inset-bottom));max-width:none}
+  .toast{bottom:calc(84px + env(safe-area-inset-bottom))}
+  .veil{padding:12px}
+  .modal{padding:20px;max-height:88vh;max-height:88dvh}
+  #v-onboard{min-height:100vh;min-height:100dvh;padding:20px}
+  .ob-card{padding:36px 24px}
+
+  #more-sheet{position:fixed;inset:0;z-index:70;background:rgba(33,42,51,.32);backdrop-filter:blur(4px)}
+  #more-sheet.open{display:block}
+  #more-sheet .sheet{position:absolute;left:0;right:0;bottom:0;background:var(--panel);
+    border-radius:22px 22px 0 0;padding:16px 14px calc(16px + env(safe-area-inset-bottom));
+    border-top:1px solid var(--line);box-shadow:0 -12px 40px rgba(150,165,180,.3);
+    display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  #more-sheet .sheet .navitem{display:flex;flex:none;flex-direction:row;justify-content:flex-start;
+    gap:12px;padding:14px 14px;font-size:15px;text-align:left;background:var(--panel2);border-radius:14px}
+  #more-sheet .sheet .navitem.on{background:var(--seltile)}
+  #more-sheet .sheet .navitem svg{width:20px;height:20px}
+}
+/* touch screens have no hover, so controls that only appeared on hover are always shown */
+@media (hover:none){
+  .item .x{opacity:.65}
+  .stk .acts{opacity:1}
+}
+@media (pointer:coarse){
+  button.sm{padding:9px 14px}
+  button.xs{padding:6px 11px}
+  .iconbtn{width:38px;height:38px}
+}
+
 /* onboarding */
 #v-onboard{width:100%;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:40px}
 .ob-card{max-width:420px;width:100%;background:var(--panel);border:1px solid var(--line);border-radius:28px;
@@ -394,7 +445,7 @@ th.r,td.r{text-align:right}
     <div class="wordmark"><div class="a">Focus</div></div>
     <span id="live" class="hide"></span>
 
-    <div style="display:flex;flex-direction:column;gap:4px">
+    <div class="navlist" style="display:flex;flex-direction:column;gap:4px">
       <button id="tab-daily" class="navitem on" onclick="tab('daily')">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="4" y="5" width="16" height="15" rx="2.5" stroke="currentColor" stroke-width="1.8"/><path d="M8 3.4v3.2M16 3.4v3.2M4 10h16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M9.4 14.4l1.9 1.9 3.3-3.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
         Daily
@@ -440,7 +491,7 @@ th.r,td.r{text-align:right}
     <!-- Goal card (plant/jar progress visual) parked for now — plantSVG/jarSVG,
          todayNetFocusMs and db.motivationVisual all stay intact so it can come
          back once we decide what it should be. -->
-    <div style="margin-top:auto"></div>
+    <div class="navspacer" style="margin-top:auto"></div>
   </div>
 
   <div class="main">
@@ -5201,8 +5252,43 @@ function wipe(){
    purely the pomodoro (setup screen, or a running session). */
 let cur='daily';
 const VIEWS=['daily','run','asg','jrn','dia','stk','bio','stats','log','set'];
+const MORE_TABS=['dia','stk','bio','stats','log','set'];
+/* Phone navigation. The sidebar's own buttons are reused (and cloned into the
+   More sheet), so tab() stays the only thing that knows how to switch views. */
+function initMobileNav(){
+  if($('tab-more')) return;
+  MORE_TABS.forEach(k=>{ const b=$('tab-'+k); if(b) b.classList.add('nav2'); });
+  const nav=$('tab-daily').parentNode;
+  const more=document.createElement('button');
+  more.id='tab-more'; more.className='navitem';
+  more.setAttribute('aria-label','More');
+  more.innerHTML='<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="5.5" cy="12" r="1.7" fill="currentColor"/><circle cx="12" cy="12" r="1.7" fill="currentColor"/><circle cx="18.5" cy="12" r="1.7" fill="currentColor"/></svg>More';
+  more.onclick=()=>toggleMore();
+  nav.appendChild(more);
+  const sheet=document.createElement('div');
+  sheet.id='more-sheet';
+  const inner=document.createElement('div'); inner.className='sheet';
+  MORE_TABS.forEach(k=>{
+    const src=$('tab-'+k); if(!src) return;
+    const b=src.cloneNode(true);
+    b.id='more-'+k; b.classList.remove('nav2');
+    b.onclick=()=>{ closeMore(); tab(k); };
+    inner.appendChild(b);
+  });
+  sheet.appendChild(inner);
+  sheet.addEventListener('click',e=>{ if(e.target===sheet) closeMore(); });
+  document.body.appendChild(sheet);
+}
+function toggleMore(){ const s=$('more-sheet'); if(s) s.classList.toggle('open'); }
+function closeMore(){ const s=$('more-sheet'); if(s) s.classList.remove('open'); }
+function syncMoreNav(t){
+  closeMore();
+  const m=$('tab-more'); if(m) m.classList.toggle('on',MORE_TABS.includes(t));
+  MORE_TABS.forEach(k=>{ const b=$('more-'+k); if(b) b.classList.toggle('on',k===t); });
+}
 function tab(t){
   cur=t;
+  syncMoreNav(t);
   VIEWS.forEach(k=>{ $('tab-'+k).classList.toggle('on',k===t); if(k!=='run') $('v-'+k).classList.add('hide'); });
   $('v-run').classList.add('hide'); $('v-setup').classList.add('hide');
   if(t==='run'){ A?run():showSetup(); return; }
@@ -5378,5 +5464,6 @@ if(MODE==='hosted'&&'serviceWorker' in navigator){
 if(prunePicks()) save();   // drop day-plans older than 30 days
 paintWarn();
 initServer();
+initMobileNav();
 checkJourneyEnds(); journeyTick();
 </script>
