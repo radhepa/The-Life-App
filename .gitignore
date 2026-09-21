@@ -1,0 +1,9 @@
+# your data — written by the local server next to the app, never committed
+focus-data.json
+focus-data.backup.json
+inbox.json
+
+# tooling noise
+__pycache__/
+*.pyc
+node_modules/
