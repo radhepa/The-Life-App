@@ -5253,7 +5253,8 @@ function exportCSV(){
 function importData(inp){
   const f=inp.files[0]; if(!f) return;
   const r=new FileReader();
-  r.onload=async ()=>{ try{ const d=JSON.parse(r.result);
+  r.onload=async ()=>{ try{ let d=JSON.parse(r.result);
+      if(d&&d.app==='radhe-labs-focus'&&d.data&&typeof d.data==='object') d=d.data;   // a copy downloaded from the sync repo's history
       if(!Array.isArray(d.sessions)) throw 0;
       db=ensureSettings(Object.assign(clone(blank),d)); db.savedAt=Date.now();
       cacheSave(); if(SERVER) await syncOut();
