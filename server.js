@@ -15,6 +15,7 @@ const TYPES = {
   '.html': 'text/html', '.json': 'application/json', '.md': 'text/markdown',
   '.js': 'text/javascript', '.css': 'text/css', '.png': 'image/png',
   '.svg': 'image/svg+xml', '.ico': 'image/x-icon',
+  '.webmanifest': 'application/manifest+json',
 };
 
 const server = http.createServer((req, res) => {
