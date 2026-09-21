@@ -1,0 +1,11 @@
+{
+  "name": "radhe-labs-focus",
+  "version": "1.0.0",
+  "description": "Focus timer, tasks, habits and journal. Installable on your phone, with optional sync between devices.",
+  "private": true,
+  "scripts": {
+    "test": "node --test",
+    "icons": "python tools/make-icons.py"
+  },
+  "license": "UNLICENSED"
+}
