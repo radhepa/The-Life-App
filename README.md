@@ -21,7 +21,7 @@ browser — no account, no build step, no dependencies — and can be **installe
 
 ## Use it on your phone
 
-**Open the app:** <https://radhepa.github.io/Focus/> (or [host your own copy](#host-your-own-copy)).
+**Open the app:** <https://radhepa.github.io/The-Life-App/> (or [host your own copy](#host-your-own-copy)).
 
 It's a web app that installs like a native one — full screen, its own icon, and it opens with no connection.
 Nothing is downloaded from an app store.

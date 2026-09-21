@@ -11,7 +11,7 @@
   var DEVICE = /iPhone|iPod/.test(navigator.userAgent) ? 'iPhone' : /iPad/.test(navigator.userAgent) ? 'iPad'
     : /Android/.test(navigator.userAgent) ? 'Android' : 'Laptop';
   var DISMISS_KEY = 'radhelabs.sync.bannerDismissed';
-  var DOCS_URL = 'https://github.com/radhepa/Focus/blob/main/docs/sync.md';
+  var DOCS_URL = 'https://github.com/radhepa/The-Life-App/blob/main/docs/sync.md';
 
   var store = {
     get: function (k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
