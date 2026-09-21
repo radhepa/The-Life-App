@@ -136,56 +136,6 @@ html[data-mode=hosted] .hide-hosted{display:none}
 .main{flex:1;padding:44px 48px;max-width:760px;margin:0 auto;width:100%;min-width:0}
 @media (max-width:900px){ .main{padding:26px 18px} .sidebar{width:190px} }
 
-/* ── phone layout ──────────────────────────────────────────────────────────
-   The sidebar becomes a bottom tab bar (Daily · Focus · Tasks · Journeys · More).
-   Everything else lives in the More sheet, which initMobileNav() builds. */
-#tab-more,#more-sheet{display:none}
-@media (max-width:760px){
-  html{-webkit-text-size-adjust:100%}
-  body{overscroll-behavior-y:none;-webkit-tap-highlight-color:transparent}
-  button,.chip,.tile,.navitem{touch-action:manipulation}
-  /* 16px stops iOS from zooming the page when a field is focused */
-  input,textarea,select{font-size:16px}
-  #shell{flex-direction:column;min-height:100vh;min-height:100dvh}
-  .sidebar{position:fixed;left:0;right:0;bottom:0;top:auto;width:auto;height:auto;z-index:50;
-    flex-direction:row;align-items:stretch;gap:0;overflow:visible;
-    padding:6px 6px calc(6px + env(safe-area-inset-bottom));
-    border-right:none;border-top:1px solid var(--line)}
-  .sidebar .wordmark,.sidebar .navspacer{display:none}
-  .navlist{flex:1;flex-direction:row!important;gap:0!important;justify-content:space-around}
-  .navitem{flex:1;min-width:0;flex-direction:column;justify-content:center;align-items:center;gap:3px;
-    padding:7px 2px 5px;font-size:10.5px;border-radius:12px;text-align:center}
-  .navitem svg{width:22px;height:22px}
-  .navitem.nav2{display:none}
-  #tab-more{display:flex}
-  .main{padding:18px 16px calc(84px + env(safe-area-inset-bottom));max-width:none}
-  .toast{bottom:calc(84px + env(safe-area-inset-bottom))}
-  .veil{padding:12px}
-  .modal{padding:20px;max-height:88vh;max-height:88dvh}
-  #v-onboard{min-height:100vh;min-height:100dvh;padding:20px}
-  .ob-card{padding:36px 24px}
-
-  #more-sheet{position:fixed;inset:0;z-index:70;background:rgba(33,42,51,.32);backdrop-filter:blur(4px)}
-  #more-sheet.open{display:block}
-  #more-sheet .sheet{position:absolute;left:0;right:0;bottom:0;background:var(--panel);
-    border-radius:22px 22px 0 0;padding:16px 14px calc(16px + env(safe-area-inset-bottom));
-    border-top:1px solid var(--line);box-shadow:0 -12px 40px rgba(150,165,180,.3);
-    display:grid;grid-template-columns:1fr 1fr;gap:8px}
-  #more-sheet .sheet .navitem{display:flex;flex:none;flex-direction:row;justify-content:flex-start;
-    gap:12px;padding:14px 14px;font-size:15px;text-align:left;background:var(--panel2);border-radius:14px}
-  #more-sheet .sheet .navitem.on{background:var(--seltile)}
-  #more-sheet .sheet .navitem svg{width:20px;height:20px}
-}
-/* touch screens have no hover, so controls that only appeared on hover are always shown */
-@media (hover:none){
-  .item .x{opacity:.65}
-  .stk .acts{opacity:1}
-}
-@media (pointer:coarse){
-  button.sm{padding:9px 14px}
-  button.xs{padding:6px 11px}
-  .iconbtn{width:38px;height:38px}
-}
 
 /* onboarding */
 #v-onboard{width:100%;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:40px}
@@ -426,6 +376,82 @@ th.r,td.r{text-align:right}
   .sd-unit:not(.lock):hover,.sd-unit:not(.lock):active,
   .sd-choice:active,.sd-tok:active,.sd-heat td.c:hover{transform:none}
   .sd-fb,.sd-note{animation:none}
+}
+
+
+/* ── phone layout ──────────────────────────────────────────────────────────
+   The sidebar becomes a bottom tab bar (Daily · Focus · Tasks · Journeys · More).
+   Everything else lives in the More sheet, which initMobileNav() builds. */
+#tab-more,#more-sheet{display:none}
+@media (max-width:760px){
+  html{-webkit-text-size-adjust:100%}
+  body{overscroll-behavior-y:none;-webkit-tap-highlight-color:transparent}
+  button,.chip,.tile,.navitem{touch-action:manipulation}
+  /* 16px stops iOS from zooming the page when a field is focused */
+  input,textarea,select{font-size:16px}
+  #shell{flex-direction:column;min-height:100vh;min-height:100dvh}
+  .sidebar{position:fixed;left:0;right:0;bottom:0;top:auto;width:auto;height:auto;z-index:50;
+    flex-direction:row;align-items:stretch;gap:0;overflow:visible;
+    padding:6px 6px calc(6px + env(safe-area-inset-bottom));
+    border-right:none;border-top:1px solid var(--line)}
+  .sidebar .wordmark,.sidebar .navspacer{display:none}
+  .navlist{flex:1;flex-direction:row!important;gap:0!important;justify-content:space-around}
+  .navitem{flex:1;min-width:0;flex-direction:column;justify-content:center;align-items:center;gap:3px;
+    padding:7px 2px 5px;font-size:10.5px;border-radius:12px;text-align:center}
+  .navitem svg{width:22px;height:22px}
+  .navitem.nav2{display:none}
+  #tab-more{display:flex}
+  .main{padding:18px 16px calc(84px + env(safe-area-inset-bottom));max-width:none}
+  .toast{bottom:calc(84px + env(safe-area-inset-bottom))}
+  .veil{padding:12px}
+  .modal{padding:20px;max-height:88vh;max-height:88dvh}
+  #v-onboard{min-height:100vh;min-height:100dvh;padding:20px}
+  .ob-card{padding:36px 24px}
+
+  #more-sheet{position:fixed;inset:0;z-index:70;background:rgba(33,42,51,.32);backdrop-filter:blur(4px)}
+  #more-sheet.open{display:block}
+  #more-sheet .sheet{position:absolute;left:0;right:0;bottom:0;background:var(--panel);
+    border-radius:22px 22px 0 0;padding:16px 14px calc(16px + env(safe-area-inset-bottom));
+    border-top:1px solid var(--line);box-shadow:0 -12px 40px rgba(150,165,180,.3);
+    display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  #more-sheet .sheet .navitem{display:flex;flex:none;flex-direction:row;justify-content:flex-start;
+    gap:12px;padding:14px 14px;font-size:15px;text-align:left;background:var(--panel2);border-radius:14px}
+  #more-sheet .sheet .navitem.on{background:var(--seltile)}
+  #more-sheet .sheet .navitem svg{width:20px;height:20px}
+}
+@media (max-width:760px){ /* phone views: per-screen fixes */
+  /* list rows: the title gets the full width, the small action buttons wrap underneath it */
+  .item{flex-wrap:wrap;gap:8px 11px}
+  .item>.ti{flex:1 1 calc(100% - 44px);min-width:0}
+  .item>.ti+button,.item>.ti+.iconbtn{margin-left:29px}
+  .item>button.xs{margin-top:0}
+  .item input[type=checkbox],.detail input[type=checkbox]{width:22px;height:22px}
+  /* tasks toolbar: search on its own line, buttons below */
+  #asg-q{flex:1 1 100%!important;max-width:none!important}
+  /* form fields may shrink inside flex/grid rows (native date inputs otherwise refuse and overflow) */
+  input,select,textarea{min-width:0;max-width:100%}
+  .modal .row>*,.card .row>*{min-width:0}
+  input[type=date],input[type=time]{min-height:44px}
+  /* sticky notes: two columns, actions on their own line instead of over the text */
+  .stk-grid{grid-template-columns:repeat(2,1fr);gap:10px}
+  .stk{display:flex;flex-direction:column}
+  .stk .acts{position:static;order:5;align-self:flex-end;margin-top:8px}
+  .stk .ts{order:4}
+  /* segmented controls stay on one line so their titles don't wrap around them */
+  .seg-wrap{gap:2px}
+  .seg{padding:8px 11px;white-space:nowrap}
+  .row.sp>h2{white-space:nowrap}
+/* end phone views */
+}
+/* touch screens have no hover, so controls that only appeared on hover are always shown */
+@media (hover:none){
+  .item .x{opacity:.65}
+  .stk .acts{opacity:1}
+}
+@media (pointer:coarse){
+  button.sm{padding:9px 14px}
+  button.xs{padding:6px 11px}
+  .iconbtn{width:38px;height:38px}
 }
 
 </style>
@@ -2403,7 +2429,7 @@ function paintAsg(){
           onclick="asgFilter.sort=asgFilter.sort==='urgency'?'due':'urgency';paintAsg()"
           title="Sort by do-score instead of due date">⚡ Urgency</button>
       </div>
-      <div class="row" style="gap:7px">
+      <div class="row wrapf" style="gap:7px">
         <input id="asg-q" placeholder="Search…" autocomplete="off" spellcheck="false"
           style="width:auto;flex:1;min-width:120px;max-width:220px"
           value="${esc(asgFilter.q||'')}"
