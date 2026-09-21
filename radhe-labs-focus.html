@@ -5428,6 +5428,24 @@ window.addEventListener('beforeunload',()=>{
 });
 setInterval(()=>{ if(A) save(); },20000);
 
+/* Phones dim and lock after ~30 seconds, which freezes the running timer's
+   display. While a block is running (not paused) on a touch device, ask the
+   browser to keep the screen on; let go the moment it stops or the app is
+   hidden. Unsupported browsers simply skip this. */
+let wakeLock=null;
+async function syncWakeLock(){
+  try{
+    if(!('wakeLock' in navigator)||!matchMedia('(pointer:coarse)').matches) return;
+    const want=!!A&&!A.paused&&!document.hidden;
+    if(want&&!wakeLock){
+      wakeLock=await navigator.wakeLock.request('screen');
+      wakeLock.addEventListener('release',()=>{ wakeLock=null; });
+    }else if(!want&&wakeLock){ const w=wakeLock; wakeLock=null; await w.release(); }
+  }catch(e){ wakeLock=null; }
+}
+setInterval(syncWakeLock,2000);
+document.addEventListener('visibilitychange',syncWakeLock);
+
 // watch inbox.json: on window focus, and every 45s while the tab is visible
 let lastPeek=0;
 function peek(){
